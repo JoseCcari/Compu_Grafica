@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+
+    <!--<script src="three.min.js"> </script> 
+    <script src="OrbitControls.js"> </script> 
+    <script src="dat.gui.min.js"></script>
+    -->
+    <script type='module'>   
+        
+
+        function set_lights(){
+            
+
+            var color = 0xFFFFFF;
+            var intensity = 3;
+            var distance = 350;
+            var angle = Math.PI/7;
+
+            ////////////////////////////////////////////////////////
+
+            const spotlight10 = new THREE.SpotLight(color, 0.5, 50000, angle+180);
+            spotlight10.position.set(-150, 0,0);
+            spotlight10.target.position.set(-600,0,0);
+            
+            spotlight10.target.updateMatrixWorld();
+            scene.add(spotlight10);
+            
+            //scene.add( new THREE.SpotLightHelper( spotlight10 ));
+
+
+
+            const spotlight11 = new THREE.SpotLight(color, 0.5, 50000, angle+180);
+            spotlight11.position.set(150, 0,0);
+            spotlight11.target.position.set(600,0,0);
+            
+            //spotlight11.rotation.x=180;
+            spotlight11.target.updateMatrixWorld();
+            //scene.add(spotlight11.target);
+            scene.add(spotlight11);
+            
+            //scene.add( new THREE.SpotLightHelper( spotlight11 ));
+
+
+
+
+            const spotlight12 = new THREE.SpotLight(color, 0.5, 50000, angle+180);
+            spotlight12.position.set(0, 0,-150);
+            spotlight12.target.position.set(0,0,-600);
+            
+            //spotlight12.rotation.x=180;
+            spotlight12.target.updateMatrixWorld();
+            //scene.add(spotlight12.target);
+            scene.add(spotlight12);
+            
+            //scene.add( new THREE.SpotLightHelper( spotlight12 ));
+
+
+
+
+            const spotlight13 = new THREE.SpotLight(color, 0.5, 50000, angle+180);
+            spotlight13.position.set(0, 0,150);
+            spotlight13.target.position.set(0,0,600);
+            
+            //spotlight13.rotation.x=180;
+            spotlight13.target.updateMatrixWorld();
+            //scene.add(spotlight13.target);
+            scene.add(spotlight13);
+            
+            //scene.add( new THREE.SpotLightHelper( spotlight13 ));
+
+
+            ////////////////////////////////////////////////////////
+        
+
+            const spotlight = new THREE.SpotLight(color, intensity, distance, angle);
+            spotlight.position.set(300, 0, 0);
+            //spotlight.rotation.x=180;
+            scene.add(spotlight);
+
+            // HELPERS
+            /*
+             scene.add(new THREE.PointLightHelper(light, 50));
+             scene.add(new THREE.PointLightHelper(light2, 50));
+             scene.add(new THREE.PointLightHelper(light3, 50));
+             scene.add(new THREE.PointLightHelper(light4, 50));
+             scene.add(new THREE.PointLightHelper(light5, 50));
+             scene.add(new THREE.PointLightHelper(light6, 50));
+             */
+            // scene.add(new THREE.GridHelper(50, 50));
+            //scene.add( new THREE.SpotLightHelper( spotlight ));
+
+            const spotlight1 = new THREE.SpotLight(color, intensity, distance, angle);
+            spotlight1.position.set(-distance, 0, 0);
+            scene.add(spotlight1);
+
+            // HELPERS
+            
+            //scene.add( new THREE.SpotLightHelper( spotlight1 ));
+
+            const spotlight2 = new THREE.SpotLight(color, intensity, distance, angle);
+            spotlight2.position.set(0, distance, 0);
+            scene.add(spotlight2);
+
+            // HELPERS
+            
+            //scene.add( new THREE.SpotLightHelper( spotlight2 ));
+
+
+
+            const spotlight3 = new THREE.SpotLight(color, intensity, distance, angle);
+            spotlight3.position.set(0, -distance, 0);
+            scene.add(spotlight3);
+
+            // HELPERS
+            
+            //scene.add( new THREE.SpotLightHelper( spotlight3 ));
+
+
+
+            const spotlight4 = new THREE.SpotLight(color, intensity, distance, angle);
+            spotlight4.position.set(0, 0, distance);
+            scene.add(spotlight4);
+
+            // HELPERS
+            
+            //scene.add( new THREE.SpotLightHelper( spotlight4 ));
+
+
+
+            const spotlight5 = new THREE.SpotLight(color, intensity, distance, angle);
+            spotlight5.position.set(0, 0, -distance);
+            scene.add(spotlight5);
+
+            // HELPERS
+            
+            //scene.add( new THREE.SpotLightHelper( spotlight5 ));
+
+            
+            /*
+            
+            */
+
+        }
+        
+
+        import * as THREE from './jsm/three.module.js';
+        import {OrbitControls} from './jsm/OrbitControls.js'; 
+        import { GUI } from './jsm/dat.gui.module.js';   
+
+        function makeXYZGUI(gui, vector3, name, onChangeFn) {
+            const folder = gui.addFolder(name);
+            folder.add(vector3, 'x', -20, 20).onChange(onChangeFn);
+            folder.add(vector3, 'y', 0, 20).onChange(onChangeFn);
+            folder.add(vector3, 'z', -20, 20).onChange(onChangeFn);
+            folder.open();
+        }      
+
+        // utilizado por GUI para modificar los parametros de light en la scena
+        class ColorGUIHelper {
+            constructor(object, prop) {
+                this.object = object;
+                this.prop = prop;
+            }
+            get value() {
+                return `#${this.object[this.prop].getHexString()}`;
+            }
+            set value(hexString) {
+                this.object[this.prop].set(hexString);
+            }
+        }
+
+        function toRadiant(x){
+            return x*Math.PI/180;
+        }
+
+        function inEartSize(x){
+            return (x*100/127420).toFixed(5);
+        }
+
+        function toAU(x){
+            return (x/149600000).toFixed(5);
+        }
+
+        function inMoonSpeed(x){
+            var moonSpeed = 4;
+            return (27*4/moonSpeed).toFixed(5);
+        }
+
+        var control;
+                
+        var scene = new THREE.Scene();
+        var camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 50000);
+        camera.position.set(1000, 0, 0);
+
+        control = new function() {
+            this.campos = 0.005;
+        };
+
+        function addControls(controlObject) {
+            var gui = new GUI();
+            gui.add(controlObject, 'campos', 0, 8,1);
+        }
+
+        
+        addControls(control);
+
+        
+
+        const loader = new THREE.CubeTextureLoader();
+        const textureB = loader.load([
+            'textures/milky.jpg',
+            'textures/stars.jpg',
+            'textures/stars.jpg',
+            'textures/stars.jpg',
+            'textures/stars.jpg',
+            'textures/stars.jpg',
+        ]);
+        scene.background = textureB;
+
+        var renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMapEnabled = true;
+        renderer.shadowMap.type = THREE.PCFShadowMap; 
+        document.body.appendChild(renderer.domElement);
+
+        var controls = new OrbitControls( camera, renderer.domElement );
+
+        // mesh /////////////////////////////////////////////////////////
+        //const texture_cesped = new THREE.TextureLoader().load( 'textures/cesped2.jpg' );
+        var velocidad = 0.01;
+        // Sol //
+        const texture_ball = new THREE.TextureLoader().load( 'textures/sol.jpg' );
+        var material1 = new THREE.MeshLambertMaterial({map: texture_ball});
+        var ball = new THREE.Mesh(
+            new THREE.SphereGeometry(100, 100, 100), 
+            material1
+        );
+        scene.add(ball);
+        // Mercurio //
+        var mercOrbitRadius = 390,
+        mercOrbitAngle = 0,
+        mercOrbitSpeed = 4 * velocidad;
+
+        const texture_merc = new THREE.TextureLoader().load( 'textures/2k_mercury.jpg' );
+        var material2 = new THREE.MeshLambertMaterial({map: texture_merc});
+        var merc = new THREE.Mesh(
+            new THREE.SphereGeometry(4, 32, 32), 
+            material2
+        );
+        merc.rotation.z = 0.03 * Math.PI / 180;
+        scene.add(merc);
+
+        // Venus //
+        var venusOrbitRadius = 720,
+        venusOrbitAngle = 0,
+        venusOrbitSpeed = 1.2 * velocidad;
+
+        const texture_venus = new THREE.TextureLoader().load( 'textures/2k_venus_surface.jpg' );
+        var material3 = new THREE.MeshLambertMaterial({map: texture_venus});
+        var venus = new THREE.Mesh(
+            new THREE.SphereGeometry(9, 32, 32), 
+            material3
+        );
+        venus.rotation.z = 177.4 * Math.PI / 180;
+        scene.add(venus);
+
+        // Tierra //
+        var tierrayLuna = new THREE.Object3D();
+        tierrayLuna.rotation.z = 23.439281 * Math.PI / 180;
+        scene.add(tierrayLuna);
+
+        var tierraOrbitRadius = 1000,
+        tierraOrbitAngle = 0,
+        tierraOrbitSpeed = 1 * velocidad;
+
+        const texture_tierra = new THREE.TextureLoader().load( 'textures/2k_earth_daymap.jpg' );
+        var material4 = new THREE.MeshLambertMaterial({map: texture_tierra});
+        var tierra = new THREE.Mesh(
+            new THREE.SphereGeometry(10, 32, 32), 
+            material4
+        );
+        tierrayLuna.add(tierra)
+
+        var moonOrbitRadius = 10*2+toAU(3844)*1000,
+        moonOrbitAngle = 0,
+        moonOrbitSpeed = inMoonSpeed(27) * velocidad;
+
+        const texture_luna = new THREE.TextureLoader().load( 'textures/2k_moon.jpg' );
+        var material5 = new THREE.MeshLambertMaterial({map: texture_luna});
+        var luna = new THREE.Mesh(
+            new THREE.SphereGeometry(inEartSize(1738*2), 32, 32), 
+            material5
+        );
+        tierrayLuna.add(luna)
+
+        // Marte //
+        var marteAndMoons = new THREE.Object3D();
+        marteAndMoons.rotation.z = 25.2 * Math.PI / 180;
+        scene.add(marteAndMoons);
+
+        var marteOrbitRadius = 1520,
+        marteOrbitAngle = 0,
+        marteOrbitSpeed = 0.53 * velocidad;
+
+        const texture_marte = new THREE.TextureLoader().load( 'textures/2k_mars.jpg' );
+        var material6 = new THREE.MeshLambertMaterial({map: texture_marte});
+        var marte = new THREE.Mesh(
+            new THREE.SphereGeometry(5.3, 32, 32), 
+            material6
+        );
+        marteAndMoons.add(marte);
+
+        //Fobos Deimos//
+
+        var fobosOrbitRadius = 5.3*2+toAU(93.8)*10000,
+        fobosOrbitAngle = 1.093,
+        fobosOrbitSpeed = -inMoonSpeed(0.3) * velocidad;
+
+        var fobos = new THREE.Mesh(
+            new THREE.SphereGeometry(inEartSize(13.5*2)*10, 32, 32), 
+            material5
+        );
+        marteAndMoons.add(fobos);
+
+        var deimosOrbitRadius = 5.3*2+toAU(234.6)*1000,
+        deimosOrbitAngle = 0.93,
+        deimosOrbitSpeed = inMoonSpeed(1.2) * velocidad;
+        var deimos = new THREE.Mesh(
+            new THREE.SphereGeometry(inEartSize(7.5*2)*10, 32, 32), 
+            material5
+        );
+        marteAndMoons.add(deimos);
+
+        // Jupiter //
+        var jupiAndMoons = new THREE.Object3D();
+        jupiAndMoons.rotation.z = 3.1 * Math.PI / 180;
+        scene.add(jupiAndMoons);
+
+        var jupiOrbitRadius = 5200,
+        jupiOrbitAngle = 1.303,
+        jupiOrbitSpeed = 0.09 * velocidad;
+
+        const texture_jupi = new THREE.TextureLoader().load( 'textures/2k_jupiter.jpg' );
+        var material7 = new THREE.MeshLambertMaterial({map: texture_jupi});
+        var jupi = new THREE.Mesh(
+            new THREE.SphereGeometry(112.1, 32, 32), 
+            material7
+        );
+        
+        jupiAndMoons.add(jupi);
+
+        //Io,Europa//
+
+        var ioOrbitRadius = 112*2+toAU(4216)*1000,
+        ioOrbitAngle = 0.05,
+        ioOrbitSpeed = inMoonSpeed(1.7) * velocidad;
+
+        var io = new THREE.Mesh(
+            new THREE.SphereGeometry(inEartSize(1820*2), 32, 32), 
+            material5
+        );
+        jupiAndMoons.add(io);
+
+        var europaOrbitRadius = 112*2+toAU(6709)*1000,
+        europaOrbitAngle = 0.470,
+        europaOrbitSpeed = inMoonSpeed(3.5) * velocidad;
+        var europa = new THREE.Mesh(
+            new THREE.SphereGeometry(inEartSize(1565*2), 32, 32), 
+            material5
+        );
+        //Ganimedes Calisto//
+        jupiAndMoons.add(europa); 
+        
+        var ganimedesOrbitRadius = 112*2+toAU(10700)*1000,
+        ganimedesOrbitAngle = 2.214,
+        ganimedesOrbitSpeed = inMoonSpeed(7.1) * velocidad;
+
+        var ganimedes = new THREE.Mesh(
+            new THREE.SphereGeometry(inEartSize(2638*2), 32, 32), 
+            material5
+        );
+        jupiAndMoons.add(ganimedes);
+
+        var calistoOrbitRadius = 112*2+toAU(18800)*1000,
+        calistoOrbitAngle = 2.017,
+        calistoOrbitSpeed = inMoonSpeed(16.6) * velocidad;
+        var calisto = new THREE.Mesh(
+            new THREE.SphereGeometry(inEartSize(2410*2), 32, 32), 
+            material5
+        );
+        jupiAndMoons.add(calisto);
+
+        // Saturno //
+        var satuAndMoons = new THREE.Object3D();
+        satuAndMoons.rotation.z = 26.7 * Math.PI / 180;
+        scene.add(satuAndMoons);
+
+        var satuOrbitRadius = 9540,
+        satuOrbitAngle = 2.489,
+        satuOrbitSpeed = 0.033 * velocidad;
+
+        const texture_satu = new THREE.TextureLoader().load( 'textures/2k_saturn.jpg' );
+        var material8 = new THREE.MeshLambertMaterial({map: texture_satu});
+        var satu = new THREE.Mesh(
+            new THREE.SphereGeometry(94.1, 32, 32), 
+            material8
+        );
+        satuAndMoons.add(satu);
+
+        //Titan//
+
+        var titanOrbitRadius = 94.1*2+toAU(12219)*1000,
+        titanOrbitAngle = 0.34854,
+        titanOrbitSpeed = inMoonSpeed(16)* velocidad;
+
+        var titan = new THREE.Mesh(
+            new THREE.SphereGeometry(inEartSize(2575*2), 32, 32), 
+            material5
+        );
+        satuAndMoons.add(titan);
+        
+        const texture_ani = new THREE.TextureLoader().load( 'textures/ring.png' );
+        var materials = new THREE.MeshLambertMaterial({map: texture_ani,side: THREE.DoubleSide});
+        var anilloOrbitRadius = 100,
+        anilloOrbitAngle = 0,
+        anilloOrbitSpeed = 0* velocidad;
+        var anillo =  new THREE.Mesh(new THREE.RingGeometry(120, 160, 64), 
+            materials
+        );
+        anillo.rotation.x = Math.PI / 2;
+        satuAndMoons.add(anillo);
+
+
+        // Urano //
+        var uraOrbitRadius = 19220,
+        uraOrbitAngle = 0,
+        uraOrbitSpeed = 0.011 * velocidad;
+
+        const texture_ura = new THREE.TextureLoader().load( 'textures/2k_uranus.jpg' );
+        var material9 = new THREE.MeshLambertMaterial({map: texture_ura});
+        var ura = new THREE.Mesh(
+            new THREE.SphereGeometry(39.8, 32, 32), 
+            material9
+        );
+        ura.rotation.z = 97.8 * Math.PI / 180;
+        scene.add(ura);
+
+        // Neptuno //
+        var nepAndMoons = new THREE.Object3D();
+        nepAndMoons.rotation.z = 28.3 * Math.PI / 180;
+        scene.add(nepAndMoons);
+
+        var nepOrbitRadius = 30060,
+        nepOrbitAngle = 1.770,
+        nepOrbitSpeed = 0.006 * velocidad;
+
+        const texture_nep = new THREE.TextureLoader().load( 'textures/2k_neptune.jpg' );
+        var material10 = new THREE.MeshLambertMaterial({map: texture_nep});
+        var nep = new THREE.Mesh(
+            new THREE.SphereGeometry(38.1, 32, 32), 
+            material10
+        );
+        nepAndMoons.add(nep);
+
+        //Triton//
+        var tritonOrbitRadius = 38.1*2+toAU(3947)*1000,
+        tritonOrbitAngle = 157,
+        tritonOrbitSpeed = inMoonSpeed(5.8) * velocidad;
+
+        var triton = new THREE.Mesh(
+            new THREE.SphereGeometry(inEartSize(2200*2), 32, 32), 
+            material5
+        );
+        nepAndMoons.add(triton);
+
+        
+
+
+        /////////////////////////////////////////////////////////////////
+
+        set_lights();        
+
+        
+
+        var clock = new THREE.Clock();
+        var time = 1;
+        var delta = 0;
+        var angle = 0;
+
+        render();
+
+        function render() {
+            requestAnimationFrame(render);
+            // Mercurio //
+            mercOrbitAngle += mercOrbitSpeed; 
+            var radians = mercOrbitAngle * Math.PI / 180;
+            merc.position.x = Math.cos(radians) * mercOrbitRadius;
+            merc.position.z = Math.sin(radians) * mercOrbitRadius;
+            merc.rotation.y += mercOrbitSpeed*6.1 * Math.PI / 180 ;
+
+            // Venus //
+            venusOrbitAngle += venusOrbitSpeed; 
+            var radians = venusOrbitAngle * Math.PI / 180;
+            venus.position.x = Math.cos(radians) * venusOrbitRadius;
+            venus.position.z = Math.sin(radians) * venusOrbitRadius;
+            venus.rotation.y += venusOrbitSpeed*1.48 * Math.PI / 180 ;
+
+            // Tierra //
+            tierraOrbitAngle += tierraOrbitSpeed; 
+            var radians = tierraOrbitAngle * Math.PI / 180;
+            tierrayLuna.position.x = Math.cos(radians) * tierraOrbitRadius;
+            tierrayLuna.position.z = Math.sin(radians) * tierraOrbitRadius;
+            tierra.rotation.y += tierraOrbitSpeed*365 * Math.PI / 180 ;
+
+            //// luna ////
+            moonOrbitAngle += moonOrbitSpeed; 
+            var moonRadians = moonOrbitAngle * Math.PI / 180;
+            luna.position.x = Math.cos(moonRadians) * moonOrbitRadius;
+            luna.position.z = Math.sin(moonRadians) * moonOrbitRadius;
+
+            // Marte //
+            marteOrbitAngle += marteOrbitSpeed; 
+            var radians = marteOrbitAngle * Math.PI / 180;
+            marteAndMoons.position.x = Math.cos(radians) * marteOrbitRadius;
+            marteAndMoons.position.z = Math.sin(radians) * marteOrbitRadius;
+            marte.rotation.y += marteOrbitSpeed*346 * Math.PI / 180 ;
+
+            //Fobos y Deimos//
+            
+            fobosOrbitAngle += fobosOrbitSpeed; 
+            var radians = fobosOrbitAngle * Math.PI / 180;
+            fobos.position.x = Math.cos(radians) * fobosOrbitRadius;
+            fobos.position.z = Math.sin(radians) * fobosOrbitRadius;
+
+            deimosOrbitAngle += deimosOrbitSpeed; 
+            var radians = deimosOrbitAngle * Math.PI / 180;
+            deimos.position.x = Math.cos(radians) * deimosOrbitRadius;
+            deimos.position.z = Math.sin(radians) * deimosOrbitRadius;
+            
+            // Jupiter //
+            jupiOrbitAngle += jupiOrbitSpeed; 
+            var radians = jupiOrbitAngle * Math.PI / 180;
+            jupiAndMoons.position.x = Math.cos(radians) * jupiOrbitRadius;
+            jupiAndMoons.position.z = Math.sin(radians) * jupiOrbitRadius;
+            jupi.rotation.y += jupiOrbitSpeed*878 * Math.PI / 180 ;
+
+            //Io,Europa,Ganimedes,Calisto//
+
+            ioOrbitAngle += ioOrbitSpeed; 
+            var radians = ioOrbitAngle * Math.PI / 180;
+            io.position.x = Math.cos(radians) * ioOrbitRadius;
+            io.position.z = Math.sin(radians) * ioOrbitRadius;
+
+            europaOrbitAngle += europaOrbitSpeed; 
+            var radians = europaOrbitAngle * Math.PI / 180;
+            europa.position.x = Math.cos(radians) * europaOrbitRadius;
+            europa.position.z = Math.sin(radians) * europaOrbitRadius;
+
+            ganimedesOrbitAngle += ganimedesOrbitSpeed; 
+            var radians = ganimedesOrbitAngle * Math.PI / 180;
+            ganimedes.position.x = Math.cos(radians) * ganimedesOrbitRadius;
+            ganimedes.position.z = Math.sin(radians) * ganimedesOrbitRadius;
+
+            calistoOrbitAngle += deimosOrbitSpeed; 
+                var radians =calistoOrbitAngle * Math.PI / 180;
+            calisto.position.x = Math.cos(radians) *calistoOrbitRadius;
+            calisto.position.z = Math.sin(radians) * calistoOrbitRadius;
+
+            // Saturno //
+            satuOrbitAngle += satuOrbitSpeed; 
+            var radians = satuOrbitAngle * Math.PI / 180;
+            satuAndMoons.position.x = Math.cos(radians) * satuOrbitRadius;
+            satuAndMoons.position.z = Math.sin(radians) * satuOrbitRadius;
+            satu.rotation.y += satuOrbitSpeed*837 * Math.PI / 180 ;
+
+            titanOrbitAngle += titanOrbitSpeed; 
+            var radians = titanOrbitAngle * Math.PI / 180;
+            titan.position.x = Math.cos(radians) * titanOrbitRadius;
+            titan.position.z = Math.sin(radians) * titanOrbitRadius;
+
+            // Urano //
+            uraOrbitAngle += uraOrbitSpeed; 
+            var radians = uraOrbitAngle * Math.PI / 180;
+            ura.position.x = Math.cos(radians) * uraOrbitRadius;
+            ura.position.z = Math.sin(radians) * uraOrbitRadius;
+            ura.rotation.y += uraOrbitSpeed*514 * Math.PI / 180 ;
+
+            // Neptuno //
+            nepOrbitAngle += nepOrbitSpeed; 
+            var radians = nepOrbitAngle * Math.PI / 180;
+            nepAndMoons.position.x = Math.cos(radians) * nepOrbitRadius;
+            nepAndMoons.position.z = Math.sin(radians) * nepOrbitRadius;
+            nep.rotation.y += nepOrbitSpeed*467 * Math.PI / 180 ;
+            
+            //Triton//
+            
+            tritonOrbitAngle += tritonOrbitSpeed; 
+            var radians = tritonOrbitAngle * Math.PI / 180;
+            triton.position.x = Math.cos(radians) * tritonOrbitRadius;
+            triton.position.z = Math.sin(radians) * tritonOrbitRadius;
+            
+            /// centrar camara en un planeta ////
+            if(control.campos==0){
+                camera.lookAt(ball.position)
+            }
+            if(control.campos==1){
+                camera.lookAt(merc.position)
+                camera.position.y=0;
+                camera.position.x =merc.position.x + 50 * Math.cos( angle );  
+                camera.position.z =merc.position.z + 50 * Math.sin( angle );
+                angle += 0.01;
+
+            }
+            if(control.campos==2){
+                camera.lookAt(venus.position)
+                camera.position.y=0;
+                camera.position.x =venus.position.x + 70 * Math.cos( angle );  
+                camera.position.z =venus.position.z + 70 * Math.sin( angle );
+                angle += 0.005;
+            }
+            if(control.campos==3){
+                camera.lookAt(tierrayLuna.position)
+                camera.position.y=0;
+                camera.position.x =tierrayLuna.position.x + 100 * Math.cos( angle );  
+                camera.position.z =tierrayLuna.position.z + 100 * Math.sin( angle );
+                angle += 0.005;
+            }
+            if(control.campos==4){
+                camera.lookAt(marteAndMoons.position)
+                camera.position.y=0;
+                camera.position.x =marteAndMoons.position.x + 60 * Math.cos( angle );  
+                camera.position.z =marteAndMoons.position.z + 60 * Math.sin( angle );
+                angle += 0.005;
+            }
+            if(control.campos==5){
+                camera.lookAt(jupiAndMoons.position)
+                camera.position.y=0;
+                camera.position.x =jupiAndMoons.position.x + 600 * Math.cos( angle );  
+                camera.position.z =jupiAndMoons.position.z + 600 * Math.sin( angle );
+                angle += 0.005;
+            }
+            if(control.campos==6){
+                camera.lookAt(satuAndMoons.position)
+                camera.position.y=0;
+                camera.position.x =satuAndMoons.position.x + 500 * Math.cos( angle );  
+                camera.position.z =satuAndMoons.position.z + 500 * Math.sin( angle );
+                angle += 0.005;            }
+            if(control.campos==7){
+                camera.lookAt(ura.position)
+                camera.position.y=0;
+                camera.position.x =ura.position.x + 150 * Math.cos( angle );  
+                camera.position.z =ura.position.z + 150 * Math.sin( angle );
+                angle += 0.005;
+            }
+            if(control.campos==8){
+                camera.lookAt(nepAndMoons.position)
+                camera.position.y=0;
+                camera.position.x =nepAndMoons.position.x + 150 * Math.cos( angle );  
+                camera.position.z =nepAndMoons.position.z + 150 * Math.sin( angle );
+                angle += 0.005;
+            }
+
+
+            renderer.render(scene, camera);
+        }
+                        
+        // redimensioar  /////////////////////////////////////////////
+        window.addEventListener('resize', redimensionar);
+        function redimensionar(){
+            camera.aspect = window.innerWidth/window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            renderer.render( scene, camera );
+        }
+    </script>    
+
+</body>
+</html>
